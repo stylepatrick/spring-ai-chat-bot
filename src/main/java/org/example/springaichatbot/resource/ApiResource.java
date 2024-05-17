@@ -3,15 +3,16 @@ package org.example.springaichatbot.resource;
 import lombok.AllArgsConstructor;
 import org.example.springaichatbot.resource.dto.RequestMessageDto;
 import org.example.springaichatbot.service.OpenAiService;
-import org.springframework.ai.image.ImageResponse;
+import org.example.springaichatbot.service.VectorStoreService;
+import org.springframework.ai.document.Document;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
+import java.util.List;
 import java.util.Map;
 
 @ApiRestController
@@ -19,6 +20,7 @@ import java.util.Map;
 public class ApiResource {
 
     private final OpenAiService openAiService;
+    private final VectorStoreService vectorStoreService;
 
     @PostMapping(value = "message")
     public ResponseEntity<Map<String, String>> generateMessage(
@@ -39,4 +41,12 @@ public class ApiResource {
 
         return new HttpEntity<>(image, headers);
     }
+
+    @PostMapping(value = "vectorstore/message")
+    public ResponseEntity<String> generateVectorstoreMessage(
+            @RequestBody RequestMessageDto requestMessageDto
+    ) {
+        return ResponseEntity.ok(vectorStoreService.messageFromVectorStore(requestMessageDto.message()));
+    }
+
 }

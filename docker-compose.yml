@@ -1,0 +1,12 @@
+name: vectorstore
+services:
+    pgvector:
+        stdin_open: true
+        tty: true
+        container_name: vectorstore
+        ports:
+            - 15438:5432
+        environment:
+            - POSTGRES_USER=vectorstore
+            - POSTGRES_PASSWORD=vectorstore
+        image: ankane/pgvector
