@@ -4,7 +4,6 @@ import lombok.AllArgsConstructor;
 import org.example.springaichatbot.resource.dto.RequestMessageDto;
 import org.example.springaichatbot.service.OpenAiService;
 import org.example.springaichatbot.service.VectorStoreService;
-import org.springframework.ai.document.Document;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -12,7 +11,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
-import java.util.List;
 import java.util.Map;
 
 @ApiRestController

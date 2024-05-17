@@ -6,7 +6,6 @@ import org.springframework.ai.vectorstore.VectorStore;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Map;
 
 @Service
 public class VectorStoreService {
@@ -19,7 +18,7 @@ public class VectorStoreService {
                 new Document("I was born in Italy on May 1990"),
                 new Document("I have two sisters and one brother"),
                 new Document("My hobbies are hiking."));
-                new Document("I like Spring Boot");
+        new Document("I like Spring Boot");
 
         // Add the documents to PGVector
         vectorStore.add(documents);

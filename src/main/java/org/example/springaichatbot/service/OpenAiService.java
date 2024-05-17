@@ -1,7 +1,6 @@
 package org.example.springaichatbot.service;
 
 import lombok.AllArgsConstructor;
-import org.springframework.ai.image.Image;
 import org.springframework.ai.image.ImagePrompt;
 import org.springframework.ai.image.ImageResponse;
 import org.springframework.ai.openai.OpenAiChatClient;
