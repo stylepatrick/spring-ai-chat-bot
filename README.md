@@ -17,7 +17,7 @@ http://localhost:8080/vectorstore/message
 
 ![img_2.png](img_2.png)
 
-## Vectorstore for custom data in PostgresSql
+## Vectorstore for custom data in PostgreSql
 
 ```
 CREATE EXTENSION IF NOT EXISTS vector;
