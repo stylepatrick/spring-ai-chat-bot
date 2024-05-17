@@ -1,7 +1,7 @@
 spring:
   ai:
     openai:
-      api-key: sk-proj-TfXcXWEehIvtup8mxseST3BlbkFJLSW9GewqYYyNxMTeguc9
+      api-key:
       chat:
         options:
           model: gpt-3.5-turbo
