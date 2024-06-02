@@ -1,13 +1,21 @@
 # spring-ai-chat-bot
 The project offers an API to generate a chat response on a given conversation and is able to generate pictures out of text. 
-In addition it shows an example to use a vectorstore for custom data. 
-
+In addition it shows an example to use a vectorstore for custom data.
+There are some .st templates used to generate the question and responses in a defined format with POJO classes.
 
 #### API POST-Request:
 
-http://localhost:8080/api/message
+http://localhost:8080/api/generalMessage
 
 ![img_1.png](img_1.png)
+
+http://localhost:8080/api/biggestCustomers
+
+![img_3.png](img_3.png)
+
+http://localhost:8080/api/companyHeadquarters
+
+![img_4.png](img_4.png)
 
 http://localhost:8080/api/image
 

@@ -1,0 +1,1 @@
+Give me a list of street, address and zip code from the biggest seats of {company}? {format}
