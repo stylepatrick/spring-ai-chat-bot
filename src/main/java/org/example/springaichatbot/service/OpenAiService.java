@@ -4,23 +4,33 @@ import org.example.springaichatbot.resource.dto.BiggestCustomers;
 import org.example.springaichatbot.resource.dto.CompanyHeadquarters;
 import org.example.springaichatbot.resource.dto.WeatherResponse;
 import org.example.springaichatbot.resource.dto.WeatherResponseMessage;
-import org.springframework.ai.chat.ChatResponse;
+import org.springframework.ai.chat.messages.Media;
 import org.springframework.ai.chat.messages.Message;
+import org.springframework.ai.chat.messages.UserMessage;
+import org.springframework.ai.chat.model.ChatModel;
+import org.springframework.ai.chat.model.ChatResponse;
 import org.springframework.ai.chat.prompt.Prompt;
 import org.springframework.ai.chat.prompt.PromptTemplate;
 import org.springframework.ai.chat.prompt.SystemPromptTemplate;
+import org.springframework.ai.converter.BeanOutputConverter;
+import org.springframework.ai.image.ImageModel;
 import org.springframework.ai.image.ImagePrompt;
 import org.springframework.ai.image.ImageResponse;
 import org.springframework.ai.model.ModelOptionsUtils;
 import org.springframework.ai.model.function.FunctionCallbackWrapper;
-import org.springframework.ai.openai.OpenAiChatClient;
+import org.springframework.ai.openai.OpenAiAudioSpeechOptions;
 import org.springframework.ai.openai.OpenAiChatOptions;
-import org.springframework.ai.openai.OpenAiImageClient;
 import org.springframework.ai.openai.OpenAiImageOptions;
-import org.springframework.ai.parser.BeanOutputParser;
+import org.springframework.ai.openai.api.OpenAiApi;
+import org.springframework.ai.openai.api.OpenAiAudioApi;
+import org.springframework.ai.openai.audio.speech.SpeechModel;
+import org.springframework.ai.openai.audio.speech.SpeechPrompt;
+import org.springframework.ai.openai.audio.speech.SpeechResponse;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
+import org.springframework.util.MimeTypeUtils;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.io.BufferedInputStream;
 import java.io.ByteArrayOutputStream;
@@ -33,8 +43,9 @@ import java.util.Map;
 @Service
 public class OpenAiService {
 
-    private final OpenAiChatClient chatClient;
-    private final OpenAiImageClient openAiImageClient;
+    private final ChatModel chatModel;
+    private final ImageModel imageModel;
+    private final SpeechModel speechModel;
 
     @Value("classpath:templates/get-customer-prompt-with-format.st")
     private Resource getCustomerPromptWithFormat;
@@ -49,35 +60,36 @@ public class OpenAiService {
     private Resource getActualWeatherData;
 
 
-    public OpenAiService(OpenAiChatClient chatClient, OpenAiImageClient openAiImageClient) {
-        this.chatClient = chatClient;
-        this.openAiImageClient = openAiImageClient;
+    public OpenAiService(ChatModel chatModel, ImageModel imageModel, SpeechModel speechModel) {
+        this.chatModel = chatModel;
+        this.imageModel = imageModel;
+        this.speechModel = speechModel;
     }
 
 
     public String generateMessage(String message) {
         PromptTemplate promptTemplate = new PromptTemplate(message);
         Prompt prompt = promptTemplate.create();
-        ChatResponse response = chatClient.call(prompt);
+        ChatResponse response = chatModel.call(prompt);
         return response.getResult().getOutput().getContent();
     }
 
     public BiggestCustomers biggestCustomers(String company) {
-        BeanOutputParser<BiggestCustomers> parser = new BeanOutputParser<>(BiggestCustomers.class);
+        BeanOutputConverter<BiggestCustomers> parser = new BeanOutputConverter<>(BiggestCustomers.class);
         String format = parser.getFormat();
         PromptTemplate promptTemplate = new PromptTemplate(getCustomerPromptWithFormat);
         Prompt prompt = promptTemplate.create(Map.of("company", company, "format", format));
-        ChatResponse response = chatClient.call(prompt);
-        return parser.parse(response.getResult().getOutput().getContent());
+        ChatResponse response = chatModel.call(prompt);
+        return parser.convert(response.getResult().getOutput().getContent());
     }
 
     public CompanyHeadquarters companyHeadquarters(String company) {
-        BeanOutputParser<CompanyHeadquarters> parser = new BeanOutputParser<>(CompanyHeadquarters.class);
+        BeanOutputConverter<CompanyHeadquarters> parser = new BeanOutputConverter<>(CompanyHeadquarters.class);
         String format = parser.getFormat();
         PromptTemplate promptTemplate = new PromptTemplate(getGetCustomerPromptWithFormat);
         Prompt prompt = promptTemplate.create(Map.of("company", company, "format", format));
-        ChatResponse response = chatClient.call(prompt);
-        return parser.parse(response.getResult().getOutput().getContent());
+        ChatResponse response = chatModel.call(prompt);
+        return parser.convert(response.getResult().getOutput().getContent());
     }
 
     public WeatherResponseMessage getActualWeatherFromOpenAiFunction(String question) {
@@ -97,13 +109,31 @@ public class OpenAiService {
 
         Message systemMessage = new SystemPromptTemplate(getActualWeatherData).createMessage();
 
-        ChatResponse response = chatClient.call(new Prompt(List.of(userMessage, systemMessage), promptOptions));
+        ChatResponse response = chatModel.call(new Prompt(List.of(userMessage, systemMessage), promptOptions));
 
         return new WeatherResponseMessage(response.getResult().getOutput().getContent());
     }
 
+    public String describeImage(MultipartFile file) {
+        OpenAiChatOptions chatOptions = OpenAiChatOptions.builder()
+                .withModel(OpenAiApi.ChatModel.GPT_4_VISION_PREVIEW.getValue())
+                .build();
+
+        UserMessage userMessage = null;
+        try {
+            userMessage = new UserMessage(
+                    "Explain what do you see in this picture?",
+                    List.of(new Media(MimeTypeUtils.IMAGE_JPEG, file.getBytes())));
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
+        return chatModel.call(new Prompt(List.of(userMessage), chatOptions)).getResult().getOutput().toString();
+
+    }
+
     public byte[] generateImage(String imageDescription) {
-        ImageResponse response = openAiImageClient.call(
+        ImageResponse response = imageModel.call(
                 new ImagePrompt(imageDescription,
                         OpenAiImageOptions.builder()
                                 .withQuality("hd")
@@ -113,6 +143,27 @@ public class OpenAiService {
 
         );
         return downloadImage(response);
+    }
+
+    public byte[] getSpeech(String text) {
+        OpenAiAudioSpeechOptions speechOptions = OpenAiAudioSpeechOptions.builder()
+                .withVoice(OpenAiAudioApi.SpeechRequest.Voice.ALLOY)
+                .withSpeed(1.0f)
+                .withResponseFormat(OpenAiAudioApi.SpeechRequest.AudioResponseFormat.MP3)
+                .withModel(OpenAiAudioApi.TtsModel.TTS_1.value)
+                .build();
+
+        SpeechPrompt speechPrompt = new SpeechPrompt(text,
+                speechOptions);
+
+        SpeechResponse response = speechModel.call(speechPrompt);
+
+        return response.getResult().getOutput();
+    }
+
+    public byte[] describeImageWithSpeech(MultipartFile file) {
+        String imageDescription = describeImage(file);
+        return getSpeech(imageDescription);
     }
 
     private byte[] downloadImage(ImageResponse imageResponse) {

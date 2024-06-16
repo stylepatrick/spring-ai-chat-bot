@@ -5,6 +5,8 @@ There are some .st templates used to generate the question and responses in a de
 
 To demonstrate the usage of OpenAiFunction an endpoint /weatherService is available which shows how to load actual data from an API, with the request and response build from the model, and give them to the OpenAi to generate the final response.
 
+With OpenAI vision it is possible to let AI describe the content of a picture. To demonstrate it, there is a endpoint /describeImage available. 
+
 #### API POST-Request:
 
 http://localhost:8080/api/generalMessage
@@ -26,6 +28,16 @@ http://localhost:8080/api/image
 http://localhost:8080/api/weatherService
 
 ![img_5.png](img_5.png)
+
+http://localhost:8080/api/describeImage
+
+![img_6.png](img_6.png)
+
+http://localhost:8080/api/talk
+![img_7.png](img_7.png)
+
+http://localhost:8080/api/describeImageWithSpeech
+![img_8.png](img_8.png)
 
 http://localhost:8080/vectorstore/message
 
