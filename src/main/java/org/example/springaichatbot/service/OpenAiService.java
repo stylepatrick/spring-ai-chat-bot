@@ -2,12 +2,19 @@ package org.example.springaichatbot.service;
 
 import org.example.springaichatbot.resource.dto.BiggestCustomers;
 import org.example.springaichatbot.resource.dto.CompanyHeadquarters;
+import org.example.springaichatbot.resource.dto.WeatherResponse;
+import org.example.springaichatbot.resource.dto.WeatherResponseMessage;
 import org.springframework.ai.chat.ChatResponse;
+import org.springframework.ai.chat.messages.Message;
 import org.springframework.ai.chat.prompt.Prompt;
 import org.springframework.ai.chat.prompt.PromptTemplate;
+import org.springframework.ai.chat.prompt.SystemPromptTemplate;
 import org.springframework.ai.image.ImagePrompt;
 import org.springframework.ai.image.ImageResponse;
+import org.springframework.ai.model.ModelOptionsUtils;
+import org.springframework.ai.model.function.FunctionCallbackWrapper;
 import org.springframework.ai.openai.OpenAiChatClient;
+import org.springframework.ai.openai.OpenAiChatOptions;
 import org.springframework.ai.openai.OpenAiImageClient;
 import org.springframework.ai.openai.OpenAiImageOptions;
 import org.springframework.ai.parser.BeanOutputParser;
@@ -20,6 +27,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
+import java.util.List;
 import java.util.Map;
 
 @Service
@@ -33,6 +41,12 @@ public class OpenAiService {
 
     @Value("classpath:templates/get-company-headquarters-with-format.st")
     private Resource getGetCustomerPromptWithFormat;
+
+    @Value("${weatherService.apiNinjasKey}")
+    private String apiNinjasKey;
+
+    @Value("classpath:templates/get-actual-weather-data.st")
+    private Resource getActualWeatherData;
 
 
     public OpenAiService(OpenAiChatClient chatClient, OpenAiImageClient openAiImageClient) {
@@ -64,6 +78,28 @@ public class OpenAiService {
         Prompt prompt = promptTemplate.create(Map.of("company", company, "format", format));
         ChatResponse response = chatClient.call(prompt);
         return parser.parse(response.getResult().getOutput().getContent());
+    }
+
+    public WeatherResponseMessage getActualWeatherFromOpenAiFunction(String question) {
+        OpenAiChatOptions promptOptions = OpenAiChatOptions.builder()
+                .withFunctionCallbacks(List.of(FunctionCallbackWrapper.builder(new WeatherServiceFunction(apiNinjasKey))
+                        .withName("CurrentWeather")
+                        .withDescription("Get the current weather for a location")
+                        .withResponseConverter((response) -> {
+                            String schema = ModelOptionsUtils.getJsonSchema(WeatherResponse.class, false);
+                            String json = ModelOptionsUtils.toJsonString(response);
+                            return schema + "\n" + json;
+                        })
+                        .build()))
+                .build();
+
+        Message userMessage = new PromptTemplate(question).createMessage();
+
+        Message systemMessage = new SystemPromptTemplate(getActualWeatherData).createMessage();
+
+        ChatResponse response = chatClient.call(new Prompt(List.of(userMessage, systemMessage), promptOptions));
+
+        return new WeatherResponseMessage(response.getResult().getOutput().getContent());
     }
 
     public byte[] generateImage(String imageDescription) {

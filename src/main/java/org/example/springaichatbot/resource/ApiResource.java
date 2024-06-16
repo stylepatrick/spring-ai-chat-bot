@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import org.example.springaichatbot.resource.dto.BiggestCustomers;
 import org.example.springaichatbot.resource.dto.CompanyHeadquarters;
 import org.example.springaichatbot.resource.dto.RequestMessageDto;
+import org.example.springaichatbot.resource.dto.WeatherResponseMessage;
 import org.example.springaichatbot.service.OpenAiService;
 import org.example.springaichatbot.service.VectorStoreService;
 import org.springframework.http.HttpEntity;
@@ -39,6 +40,13 @@ public class ApiResource {
             @RequestBody RequestMessageDto requestMessageDto
     ) {
         return ResponseEntity.ok(openAiService.companyHeadquarters(requestMessageDto.message()));
+    }
+
+    @PostMapping(value = "weatherService")
+    public ResponseEntity<WeatherResponseMessage> weatherService(
+            @RequestBody RequestMessageDto requestMessageDto
+    ) {
+        return ResponseEntity.ok(openAiService.getActualWeatherFromOpenAiFunction(requestMessageDto.message()));
     }
 
     @PostMapping(value = "image")

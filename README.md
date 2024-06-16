@@ -3,6 +3,8 @@ The project offers an API to generate a chat response on a given conversation an
 In addition it shows an example to use a vectorstore for custom data.
 There are some .st templates used to generate the question and responses in a defined format with POJO classes.
 
+To demonstrate the usage of OpenAiFunction an endpoint /weatherService is available which shows how to load actual data from an API, with the request and response build from the model, and give them to the OpenAi to generate the final response.
+
 #### API POST-Request:
 
 http://localhost:8080/api/generalMessage
@@ -20,6 +22,10 @@ http://localhost:8080/api/companyHeadquarters
 http://localhost:8080/api/image
 
 ![img.png](img.png)
+
+http://localhost:8080/api/weatherService
+
+![img_5.png](img_5.png)
 
 http://localhost:8080/vectorstore/message
 

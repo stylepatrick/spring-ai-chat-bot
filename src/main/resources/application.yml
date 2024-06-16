@@ -1,10 +1,10 @@
 spring:
   ai:
     openai:
-      api-key:
+      api-key: ${OPEN_AI_API_KEY}
       chat:
         options:
-          model: gpt-3.5-turbo
+          model: gpt-4
           temperature: 0.7
     vectorstore:
       pgvector:
@@ -15,3 +15,6 @@ spring:
     url: jdbc:postgresql://localhost:15438/vectorstore
     username: vectorstore
     password: vectorstore
+
+weatherService:
+  apiNinjasKey: ${API_NINJAS_KEY}
