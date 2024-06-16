@@ -1,75 +1,66 @@
-# spring-ai-chat-bot
+# Spring AI Chat Bot
 
 This project demonstrates various AI functionalities using Spring AI. It includes capabilities for generating chat responses, handling JSON formatted data, creating images, describing images, loading real-time data via APIs with Open AI Functions, generating speech from text, and utilizing a vector store for custom data.
 
-### API POST-Request:
+### API POST-Requests:
 
 #### General Message to AI
-http://localhost:8080/api/generalMessage
+- **URL**: `http://localhost:8080/api/generalMessage`
+- **Description**: Sends a general message to AI for a response.
+![General Message](img_1.png)
 
-![img_1.png](img_1.png)
+#### Get Biggest Customers
+- **URL**: `http://localhost:8080/api/biggestCustomers`
+- **Description**: Retrieves the biggest customers for a given company in JSON format.
+![Biggest Customers](img_3.png)
 
-#### Get biggest customers for a given company and response in a JSON format
+#### Get Headquarters for a Company
+- **URL**: `http://localhost:8080/api/companyHeadquarters`
+- **Description**: Gets the headquarters of a given company in JSON format.
+![Company Headquarters](img_4.png)
 
-http://localhost:8080/api/biggestCustomers
+#### Generate an Image from Text
+- **URL**: `http://localhost:8080/api/image`
+- **Description**: Generates an image from a given text using DALLE.
+![Image Generation](img.png)
 
-![img_3.png](img_3.png)
+#### Load Real-Time Data via API
+- **URL**: `http://localhost:8080/api/weatherService`
+- **Description**: Uses AI functions to load actual data from an API request and generate a response.
+![Weather Service](img_5.png)
 
-#### Get headquaters for a given company and response in a JSON format
+#### Describe an Image
+- **URL**: `http://localhost:8080/api/describeImage`
+- **Description**: Uses OpenAI vision to describe the content of an image.
+![Image Description](img_6.png)
 
-http://localhost:8080/api/companyHeadquarters
+#### Generate Speech from Text
+- **URL**: `http://localhost:8080/api/talk`
+- **Description**: Generates speech from a given text.
+![Text to Speech](img_7.png)
 
-![img_4.png](img_4.png)
+#### Describe an Image with Speech
+- **URL**: `http://localhost:8080/api/describeImageWithSpeech`
+- **Description**: Describes an image with generated speech.
+![Image Description with Speech](img_8.png)
 
-#### Generates an image from a given text with DALLE
+#### Use a Vector Store for Custom Data
+- **URL**: `http://localhost:8080/vectorstore/message`
+- **Description**: Uses a vector store to build embeddings on custom data.
+![Vector Store Message](img_2.png)
 
-http://localhost:8080/api/image
+## Vector Store Setup in PostgreSQL
 
-![img.png](img.png)
-
-#### Use AI Function to load actual data to the request from an API
-
-http://localhost:8080/api/weatherService
-
-![img_5.png](img_5.png)
-
-#### Use OpenAI vision to describe an Image
-
-http://localhost:8080/api/describeImage
-
-![img_6.png](img_6.png)
-
-#### Generate a speech from a given text
-
-http://localhost:8080/api/talk
-
-![img_7.png](img_7.png)
-
-#### Describe a given image with speech
-
-http://localhost:8080/api/describeImageWithSpeech
-
-![img_8.png](img_8.png)
-
-#### Use a vector store to build embeddings on custom data
-
-http://localhost:8080/vectorstore/message
-
-![img_2.png](img_2.png)
-
-## Vectorstore for custom data in PostgreSql
-
-```
+```sql
 CREATE EXTENSION IF NOT EXISTS vector;
 CREATE EXTENSION IF NOT EXISTS hstore;
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
 CREATE TABLE IF NOT EXISTS vector_store (
-id uuid DEFAULT uuid_generate_v4() PRIMARY KEY,
-content text,
-metadata json,
-embedding vector(1536)
+    id uuid DEFAULT uuid_generate_v4() PRIMARY KEY,
+    content text,
+    metadata json,
+    embedding vector(1536)
 );
 
 CREATE INDEX ON vector_store USING HNSW (embedding vector_cosine_ops);
-```
