@@ -1,43 +1,57 @@
 # spring-ai-chat-bot
-The project offers an API to generate a chat response on a given conversation and is able to generate pictures out of text. 
-In addition it shows an example to use a vectorstore for custom data.
-There are some .st templates used to generate the question and responses in a defined format with POJO classes.
 
-To demonstrate the usage of OpenAiFunction an endpoint /weatherService is available which shows how to load actual data from an API, with the request and response build from the model, and give them to the OpenAi to generate the final response.
+This project demonstrates various AI functionalities using Spring AI. It includes capabilities for generating chat responses, handling JSON formatted data, creating images, describing images, loading real-time data via APIs with Open AI Functions, generating speech from text, and utilizing a vector store for custom data.
 
-With OpenAI vision it is possible to let AI describe the content of a picture. To demonstrate it, there is a endpoint /describeImage available. 
+### API POST-Request:
 
-#### API POST-Request:
-
+#### General Message to AI
 http://localhost:8080/api/generalMessage
 
 ![img_1.png](img_1.png)
+
+#### Get biggest customers for a given company and response in a JSON format
 
 http://localhost:8080/api/biggestCustomers
 
 ![img_3.png](img_3.png)
 
+#### Get headquaters for a given company and response in a JSON format
+
 http://localhost:8080/api/companyHeadquarters
 
 ![img_4.png](img_4.png)
+
+#### Generates an image from a given text with DALLE
 
 http://localhost:8080/api/image
 
 ![img.png](img.png)
 
+#### Use AI Function to load actual data to the request from an API
+
 http://localhost:8080/api/weatherService
 
 ![img_5.png](img_5.png)
+
+#### Use OpenAI vision to describe an Image
 
 http://localhost:8080/api/describeImage
 
 ![img_6.png](img_6.png)
 
+#### Generate a speech from a given text
+
 http://localhost:8080/api/talk
+
 ![img_7.png](img_7.png)
 
+#### Describe a given image with speech
+
 http://localhost:8080/api/describeImageWithSpeech
+
 ![img_8.png](img_8.png)
+
+#### Use a vector store to build embeddings on custom data
 
 http://localhost:8080/vectorstore/message
 
